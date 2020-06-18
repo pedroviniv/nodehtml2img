@@ -34,7 +34,7 @@ const defaultSettings: Settings = {
 - Using custom settings:
 
 ```typescript
-import nodehtml2img from "nodehtml2img";
+import nodehtml2img, { Encoding, ImageFormat } from "nodehtml2img";
 
 const buffer = nodehtml2img("<h1>Hello, World</h1>", {
   transparent: true,
