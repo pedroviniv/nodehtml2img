@@ -4,7 +4,11 @@ A simple node.js module that renders an HTML content and generates an image from
 
 ## how it works
 
-**nodehtml2img** uses `puppeteer` to launch an headless browser and render the given html content. Simple like that, nothing more, nothing less.
+**nodehtml2img** uses `puppeteer` to launch an headless browser and render the given html content. Simple like that, nothing more, nothing less.]
+
+## install
+
+`npm install --save nodehtml2img`
 
 ## usage
 
