@@ -1,0 +1,34 @@
+{
+  "name": "nodehtml2img",
+  "version": "0.0.1",
+  "description": "A node.js module that renders an HTML content and generates an image from it",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublish": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedroviniv/nodehtml2img.git"
+  },
+  "keywords": [
+    "node.js",
+    "html",
+    "image",
+    "headless-browser",
+    "server-side",
+    "converter"
+  ],
+  "author": "Pedro Arthur Fernandes de Vasconcelos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pedroviniv/nodehtml2img/issues"
+  },
+  "homepage": "https://github.com/pedroviniv/nodehtml2img#readme",
+  "dependencies": {
+    "puppeteer": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/puppeteer": "^3.0.0"
+  }
+}
