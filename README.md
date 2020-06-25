@@ -41,6 +41,11 @@ const buffer = nodehtml2img("<h1>Hello, World</h1>", {
   puppeteerArgs: {},
   encoding: Encoding.BASE_64,
   imageFormat: ImageFormat.JPEG,
-  quality: 95, // from 0 to 100
+  quality: 95, // from 0 to 100,
+  viewport: {
+    width: 2000,
+    height: 1000,
+    deviceScaleFactor: 1,
+  },
 });
 ```
