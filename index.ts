@@ -17,6 +17,24 @@ export enum ImageFormat {
 }
 
 /**
+ * settings for defining a viewport
+ */
+export interface Viewport {
+  /**
+   * width (in pixels)
+   */
+  width: number;
+  /**
+   * height (in pixels)
+   */
+  height: number;
+  /**
+   * device scale factor (can be thought of as dpr)
+   */
+  deviceScaleFactor: number;
+}
+
+/**
  * html2img settings structure
  */
 export interface Settings {
@@ -25,6 +43,7 @@ export interface Settings {
   puppeteerArgs: any;
   encoding: Encoding;
   imageFormat: ImageFormat;
+  viewport?: Viewport;
 }
 
 /**
@@ -36,6 +55,33 @@ const defaultSettings: Settings = {
   encoding: Encoding.BINARY,
   imageFormat: ImageFormat.PNG,
 };
+
+/**
+ * creates a new page using the given html, on the given browser, based on the
+ * given settings.
+ * @param html content that will be rendered in the page created
+ * @param browser instance of puppeteer browser that will create the page
+ * @param settings settings with the viewport definition of the page
+ */
+async function createPage(
+  html: string,
+  browser: puppeteer.Browser,
+  settings: Settings
+): Promise<puppeteer.Page> {
+  const page = await browser.newPage();
+  await page.setContent(html);
+
+  /**
+   * setting the viewport definition if it was provided
+   */
+  if (settings.viewport) {
+    const { viewport } = settings;
+    const { width, height, deviceScaleFactor } = viewport;
+    await page.setViewport({ width, height, deviceScaleFactor });
+  }
+
+  return page;
+}
 
 /**
  * generates an image from the given html content
@@ -63,14 +109,13 @@ export default async function (
   }
 
   const browser = await puppeteer.launch({ ...puppeteerArgs, headless: true });
-  const page = await browser.newPage();
-
-  await page.setContent(html);
+  const page = await createPage(html, browser, settings);
   const element = await page.$("body");
 
   if (!element) {
     throw new Error(
-      "An error occurred while obtaining the body element out of the puppeteer page. It's most likely to be a puppeteer problem"
+      `An error occurred while obtaining the body element out of the puppeteer page.
+      It's most likely to be a puppeteer problem`
     );
   }
 
