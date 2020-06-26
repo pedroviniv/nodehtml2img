@@ -56,33 +56,6 @@ const defaultSettings: Settings = {
   imageFormat: ImageFormat.PNG,
 };
 
-/**
- * creates a new page using the given html, on the given browser, based on the
- * given settings.
- * @param html content that will be rendered in the page created
- * @param browser instance of puppeteer browser that will create the page
- * @param settings settings with the viewport definition of the page
- */
-async function createPage(
-  html: string,
-  browser: puppeteer.Browser,
-  settings: Settings
-): Promise<puppeteer.Page> {
-  const page = await browser.newPage();
-  await page.setContent(html);
-
-  /**
-   * setting the viewport definition if it was provided
-   */
-  if (settings.viewport) {
-    const { viewport } = settings;
-    const { width, height, deviceScaleFactor } = viewport;
-    await page.setViewport({ width, height, deviceScaleFactor });
-  }
-
-  return page;
-}
-
 type Data = { html: string; settings: Settings };
 
 async function takeScreenshot(args: any) {
@@ -108,12 +81,15 @@ async function takeScreenshot(args: any) {
   }
 
   await page.setContent(html);
-  return await page.screenshot({
+  const result = await page.screenshot({
     type: imageFormat,
     omitBackground: transparent,
     encoding,
     ...screenshotSettings,
   });
+
+  await page.close();
+  return result;
 }
 
 /**
