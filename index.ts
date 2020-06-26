@@ -103,6 +103,5 @@ export default async function (
 ) {
   const cluster: Cluster<Data, any> = await ClusterHolder.getInstance();
   const result = await cluster.execute({ html, settings }, takeScreenshot);
-  cluster.close();
   return result;
 }
