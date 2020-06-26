@@ -1,4 +1,6 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Page } from "puppeteer";
+import ClusterHolder from "./cluster/ClusterHolder";
+import { Cluster } from "puppeteer-cluster";
 
 /**
  * available encoding formats
@@ -83,22 +85,15 @@ async function createPage(
   return page;
 }
 
-/**
- * generates an image from the given html content
- * @param html html content in which an imagem will be generated
- * @param settings image cration settings
- */
-export default async function (
-  html: string,
-  settings: Settings = defaultSettings
-) {
-  const {
-    imageFormat,
-    quality,
-    transparent,
-    puppeteerArgs,
-    encoding,
-  } = settings;
+type Data = { html: string; settings: Settings };
+
+async function takeScreenshot(args: any) {
+  const page: Page = args.page;
+  const data: Data = args.data;
+
+  const { html, settings } = data;
+
+  const { imageFormat, quality, transparent, encoding } = settings;
 
   const screenshotSettings = {
     quality,
@@ -108,24 +103,32 @@ export default async function (
     screenshotSettings.quality = quality ? quality : 80;
   }
 
-  const browser = await puppeteer.launch({ ...puppeteerArgs, headless: true });
-  const page = await createPage(html, browser, settings);
-  const element = await page.$("body");
-
-  if (!element) {
-    throw new Error(
-      `An error occurred while obtaining the body element out of the puppeteer page.
-      It's most likely to be a puppeteer problem`
-    );
+  const { viewport } = settings;
+  if (viewport) {
+    const { width, height, deviceScaleFactor } = viewport;
+    await page.setViewport({ width, height, deviceScaleFactor });
   }
 
-  const buffer = await element.screenshot({
+  await page.setContent(html);
+  return await page.screenshot({
     type: imageFormat,
     omitBackground: transparent,
     encoding,
     ...screenshotSettings,
   });
+}
 
-  await browser.close();
-  return buffer;
+/**
+ * generates an image from the given html content
+ * @param html html content in which an imagem will be generated
+ * @param settings image cration settings
+ */
+export default async function (
+  html: string,
+  settings: Settings = defaultSettings
+) {
+  const cluster: Cluster<Data, any> = await ClusterHolder.getInstance();
+  const result = await cluster.execute({ html, settings }, takeScreenshot);
+  cluster.close();
+  return result;
 }
