@@ -42,7 +42,6 @@ export interface Viewport {
 export interface Settings {
   quality?: number;
   transparent: boolean;
-  puppeteerArgs: any;
   encoding: Encoding;
   imageFormat: ImageFormat;
   viewport?: Viewport;
@@ -53,7 +52,6 @@ export interface Settings {
  */
 const defaultSettings: Settings = {
   transparent: false,
-  puppeteerArgs: {},
   encoding: Encoding.BINARY,
   imageFormat: ImageFormat.PNG,
 };
