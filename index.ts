@@ -101,7 +101,34 @@ export default async function (
   html: string,
   settings: Settings = defaultSettings
 ) {
-  const cluster: Cluster<Data, any> = await ClusterHolder.getInstance();
-  const result = await cluster.execute({ html, settings }, takeScreenshot);
+  const cluster = await getCluster();
+  const result = await cluster.execute({ html, settings });
   return result;
+}
+
+/**
+ * initilizes the resources used by nodehtml2img.
+ *
+ * If you don't call this method, all resources will be initialized when you call nodehtml2img function.
+ * But initialize through this method is preferred if you want to
+ * initialize all resources, for instance, in the application load.
+ *
+ * @return context with intialized resources
+ */
+export async function init() {
+  const cluster = await getCluster();
+  return { puppeteerCluster: cluster };
+}
+
+/**
+ * initializes (if it wasn't already) and returns
+ * the cluster.
+ */
+async function getCluster() {
+  const cluster: Cluster<Data, any> = await ClusterHolder.getInstance(
+    async (cluster: Cluster<Data, any>) => {
+      cluster.task(takeScreenshot);
+    }
+  );
+  return cluster;
 }
