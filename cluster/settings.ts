@@ -35,6 +35,14 @@ function getPuppeteerArgs() {
   return ["--no-sandbox"];
 }
 
+function getNodehtml2imgMonitor() {
+  const monitor = process.env.NODE_HTML_2_IMG_MONITOR;
+  if (monitor) {
+    return monitor === "true";
+  }
+  return false;
+}
+
 export default {
   concurrency: getConcurrency(),
   maxConcurrency: getMaxConcurrency(),
@@ -42,4 +50,5 @@ export default {
     headless: isPuppeteerHeadless(),
     args: getPuppeteerArgs(),
   },
+  enableMonitor: getNodehtml2imgMonitor(),
 };
