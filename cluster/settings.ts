@@ -50,5 +50,5 @@ export default {
     headless: isPuppeteerHeadless(),
     args: getPuppeteerArgs(),
   },
-  enableMonitor: getNodehtml2imgMonitor(),
+  monitor: getNodehtml2imgMonitor(),
 };
