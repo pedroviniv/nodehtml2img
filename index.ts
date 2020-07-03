@@ -45,6 +45,7 @@ export interface Settings {
   encoding: Encoding;
   imageFormat: ImageFormat;
   viewport?: Viewport;
+  puppeteerScreenshotSettings?: any;
 }
 
 /**
@@ -64,10 +65,17 @@ async function takeScreenshot(args: any) {
 
   const { html, settings } = data;
 
-  const { imageFormat, quality, transparent, encoding } = settings;
+  const {
+    imageFormat,
+    quality,
+    transparent,
+    encoding,
+    puppeteerScreenshotSettings,
+  } = settings;
 
   const screenshotSettings = {
     quality,
+    ...puppeteerScreenshotSettings,
   };
 
   if (imageFormat === ImageFormat.JPEG) {
