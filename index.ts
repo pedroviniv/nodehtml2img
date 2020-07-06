@@ -89,7 +89,17 @@ async function takeScreenshot(args: any) {
   }
 
   await page.setContent(html);
-  const result = await page.screenshot({
+
+  const element = await page.$("body");
+
+  if (!element) {
+    throw new Error(
+      `An error occurred while obtaining the body element out of the puppeteer page.
+      It's most likely to be a puppeteer problem`
+    );
+  }
+
+  const result = await element.screenshot({
     type: imageFormat,
     omitBackground: transparent,
     encoding,
