@@ -46,6 +46,7 @@ export interface Settings {
   imageFormat: ImageFormat;
   viewport?: Viewport;
   puppeteerScreenshotSettings?: any;
+  caching?: boolean;
 }
 
 /**
@@ -55,6 +56,7 @@ const defaultSettings: Settings = {
   transparent: false,
   encoding: Encoding.BINARY,
   imageFormat: ImageFormat.PNG,
+  caching: false,
 };
 
 type Data = { html: string; settings: Settings };
@@ -71,7 +73,10 @@ async function takeScreenshot(args: any) {
     transparent,
     encoding,
     puppeteerScreenshotSettings,
+    caching,
   } = settings;
+
+  await page.setCacheEnabled(caching);
 
   const screenshotSettings = {
     quality,
