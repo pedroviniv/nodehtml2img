@@ -111,6 +111,8 @@ async function takeScreenshot(args: any) {
     ...screenshotSettings,
   });
 
+  await page.close();
+
   return result;
 }
 
