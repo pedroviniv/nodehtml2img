@@ -43,6 +43,14 @@ function getNodehtml2imgMonitor() {
   return false;
 }
 
+function getExecutionTimeout() {
+  const timeoutString = process.env.PUPPETEER_CLUSTER_TIMEOUT;
+  if (timeoutString) {
+    return Number.parseInt(timeoutString);
+  }
+  return 30000;
+}
+
 export default {
   concurrency: getConcurrency(),
   maxConcurrency: getMaxConcurrency(),
@@ -51,4 +59,5 @@ export default {
     args: getPuppeteerArgs(),
   },
   monitor: getNodehtml2imgMonitor(),
+  timeout: getExecutionTimeout(),
 };
