@@ -1,6 +1,5 @@
 import puppeteer from "puppeteer";
 import { v4 as uuidv4 } from "uuid";
-import interval from "interval-promise";
 
 export type Func<T> = (browser: puppeteer.Browser) => Promise<T>;
 
@@ -116,28 +115,47 @@ class ClusterWorker<T> {
     this.startWorker();
   }
 
-  private startWorker() {
+  private delayed(callback: () => Promise<any>, ms: number) {
+    return new Promise((accept, reject) => {
+      setTimeout(async () => {
+        try {
+          const result = await callback();
+          accept(result);
+        } catch (err) {
+          reject(err);
+        }
+      }, ms);
+    });
+  }
+
+  private async startWorker() {
     this.running = true;
 
-    interval(async (iteration, stop) => {
+    while (true) {
       if (!this.running) {
-        console.log("stopping");
-        stop();
+        break;
       }
 
-      const current = this.tasks.shift();
-      if (current) {
-        console.log(
-          `[Worker-${this.id}] executing task ${current.getTaskDescription()}`
-        );
-        await current.run(this.browser);
-        console.log(
-          `[Worker-${
-            this.id
-          }] finished executing task ${current.getTaskDescription()}`
-        );
-      }
-    }, this.intervalBetweenTasks);
+      await this.delayed(async () => {
+        if (!this.browser.isConnected()) {
+          return;
+        }
+
+        const current = this.tasks.shift();
+
+        if (current) {
+          console.log(
+            `[Worker-${this.id}] executing task ${current.getTaskDescription()}`
+          );
+          await current.run(this.browser);
+          console.log(
+            `[Worker-${
+              this.id
+            }] finished executing task ${current.getTaskDescription()}`
+          );
+        }
+      }, this.intervalBetweenTasks);
+    }
   }
 }
 
