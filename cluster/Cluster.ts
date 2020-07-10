@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import { v4 as uuidv4 } from "uuid";
+import { Worker as WorkerThread } from "worker_threads";
 
 export type Func<T> = (browser: puppeteer.Browser) => Promise<T>;
 
@@ -101,6 +102,10 @@ class ClusterWorker<T> {
     console.log(`worker ${this.id} has been successfully closed!`);
   }
 
+  getTaskCount() {
+    return this.tasks.length;
+  }
+
   /**
    * executes the given function, when it completes
    * the promise returned will be resolved
@@ -116,7 +121,7 @@ class ClusterWorker<T> {
   }
 
   private delayed(callback: () => Promise<any>, ms: number) {
-    return new Promise((accept, reject) => {
+    return new Promise(function delayedPromise(accept, reject) {
       setTimeout(async () => {
         try {
           const result = await callback();
@@ -130,27 +135,28 @@ class ClusterWorker<T> {
 
   private async startWorker() {
     this.running = true;
+    const self = this;
 
     while (true) {
       if (!this.running) {
         break;
       }
 
-      await this.delayed(async () => {
-        if (!this.browser.isConnected()) {
+      await this.delayed(async function clusterWorkerDelayedExecutor() {
+        if (!self.browser.isConnected()) {
           return;
         }
 
-        let current = this.tasks.shift();
+        let current = self.tasks.shift();
 
         if (current) {
           console.log(
-            `[Worker-${this.id}] executing task ${current.getTaskDescription()}`
+            `[Worker-${self.id}] executing task ${current.getTaskDescription()}`
           );
-          await current.run(this.browser);
+          await current.run(self.browser);
           console.log(
             `[Worker-${
-              this.id
+              self.id
             }] finished executing task ${current.getTaskDescription()}`
           );
 
@@ -195,7 +201,7 @@ export default class Cluster<T> {
    */
   launchWorkers() {
     console.log("launching workers...");
-    this.workers.forEach((worker) => {
+    this.workers.forEach(function workerLauncher(worker) {
       console.log("launching worker ", worker.getId());
       worker.launch();
     });
@@ -244,13 +250,41 @@ export default class Cluster<T> {
   }
 
   /**
-   * adiciona uma task a um worker de maneira randômica
+   * registers the task to the most free
+   * worker
    * @param task
    */
   pushTask(task: Task<T>) {
+    const mostFreeWorker = this.getMostFreeWorker();
+    if (mostFreeWorker) {
+      mostFreeWorker.execute(task);
+    }
+  }
+
+  /**
+   * retrevies the worker with less
+   * tasks to handle
+   */
+  getMostFreeWorker() {
+    if (this.workers.length === 0) {
+      return;
+    }
+
+    let mostFreeWorker = this.workers[0];
+    if (this.workers.length === 1) {
+      return mostFreeWorker;
+    }
+
     const { workersNumber } = this.settings;
-    const workerIndex = Number.parseInt(`${Math.random() * workersNumber}`);
-    this.workers[workerIndex].execute(task);
+
+    for (let i = 1; i < workersNumber; i++) {
+      const current = this.workers[i];
+      if (current.getTaskCount() < mostFreeWorker.getTaskCount()) {
+        mostFreeWorker = current;
+      }
+    }
+
+    return mostFreeWorker;
   }
 
   /**

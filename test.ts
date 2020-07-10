@@ -81,6 +81,7 @@ data-styled.g4[id="sc-global-inXAOG1"]{content:"sc-global-inXAOG1,"}/*!sc*/
 (async () => {
   console.log("starting...");
   const cluster = await init();
+  let array = [];
   console.log("started!");
   setInterval(async () => {
     const img = await nodehtml2img(html, {
@@ -95,6 +96,8 @@ data-styled.g4[id="sc-global-inXAOG1"]{content:"sc-global-inXAOG1,"}/*!sc*/
         deviceScaleFactor: 2,
       },
     });
+    array.push(1);
+    console.log("handled: ", array.length);
     console.log("[1] printed: " + img.substring(0, 40) + "...");
   }, 50);
 
@@ -110,6 +113,8 @@ data-styled.g4[id="sc-global-inXAOG1"]{content:"sc-global-inXAOG1,"}/*!sc*/
         deviceScaleFactor: 2,
       },
     });
+    array.push(1);
+    console.log("handled: ", array.length);
     console.log("[2] printed: " + img.substring(0, 40) + "...");
   }, 50);
 })();

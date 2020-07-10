@@ -65,7 +65,7 @@ const defaultSettings: Settings = {
  * @param settings
  */
 function createTakeScreenshotTask(html: string, settings: Settings) {
-  return async (browser: puppeteer.Browser) => {
+  return async function takeScreenshotTask(browser: puppeteer.Browser) {
     const {
       imageFormat,
       quality,
