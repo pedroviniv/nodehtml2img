@@ -75,7 +75,9 @@ function createTakeScreenshotTask(html: string, settings: Settings) {
       caching,
     } = settings;
 
-    const page = await browser.newPage();
+    const ctx = await browser.createIncognitoBrowserContext();
+
+    const page = await ctx.newPage();
     await page.setCacheEnabled(caching);
 
     const screenshotSettings = {
@@ -112,6 +114,7 @@ function createTakeScreenshotTask(html: string, settings: Settings) {
     });
 
     await page.close();
+    await ctx.close();
 
     return result;
   };
