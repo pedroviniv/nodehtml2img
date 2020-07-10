@@ -246,7 +246,7 @@ export default class Cluster<T> {
     puppeteerSettings: PuppeteerSettings
   ): Promise<puppeteer.Browser> {
     const { headless } = puppeteerSettings;
-    return await puppeteer.launch({ ...puppeteerSettings.args, headless });
+    return await puppeteer.launch({ args: puppeteerSettings.args, headless });
   }
 
   /**
