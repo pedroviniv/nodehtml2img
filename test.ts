@@ -96,7 +96,7 @@ data-styled.g4[id="sc-global-inXAOG1"]{content:"sc-global-inXAOG1,"}/*!sc*/
       },
     });
     console.log("[1] printed: " + img.substring(0, 40) + "...");
-  }, 100);
+  }, 50);
 
   setInterval(async () => {
     const img = await nodehtml2img(html, {
@@ -111,5 +111,5 @@ data-styled.g4[id="sc-global-inXAOG1"]{content:"sc-global-inXAOG1,"}/*!sc*/
       },
     });
     console.log("[2] printed: " + img.substring(0, 40) + "...");
-  }, 100);
+  }, 50);
 })();

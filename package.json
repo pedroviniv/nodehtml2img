@@ -1,6 +1,6 @@
 {
   "name": "nodehtml2img",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "A node.js module that renders an HTML content and generates an image from it",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,8 +26,10 @@
   },
   "homepage": "https://github.com/pedroviniv/nodehtml2img#readme",
   "dependencies": {
+    "@types/uuid": "^8.0.0",
+    "interval-promise": "^1.4.0",
     "puppeteer": "^4.0.0",
-    "puppeteer-cluster": "^0.21.0"
+    "uuid": "^8.2.0"
   },
   "devDependencies": {
     "@types/puppeteer": "^3.0.0"

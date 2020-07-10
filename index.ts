@@ -1,6 +1,5 @@
-import puppeteer, { Page } from "puppeteer";
-import ClusterHolder from "./cluster/ClusterHolder";
-import { Cluster } from "puppeteer-cluster";
+import puppeteer from "puppeteer";
+import { Cluster, ClusterHolder } from "./cluster";
 
 /**
  * available encoding formats
@@ -59,61 +58,63 @@ const defaultSettings: Settings = {
   caching: false,
 };
 
-type Data = { html: string; settings: Settings };
+/**
+ * creates a task that takes a screenshost of the given
+ * html content using the given settings
+ * @param html
+ * @param settings
+ */
+function createTakeScreenshotTask(html: string, settings: Settings) {
+  return async (browser: puppeteer.Browser) => {
+    const {
+      imageFormat,
+      quality,
+      transparent,
+      encoding,
+      puppeteerScreenshotSettings,
+      caching,
+    } = settings;
 
-async function takeScreenshot(args: any) {
-  const page: Page = args.page;
-  const data: Data = args.data;
+    const page = await browser.newPage();
+    await page.setCacheEnabled(caching);
 
-  const { html, settings } = data;
+    const screenshotSettings = {
+      quality,
+      ...puppeteerScreenshotSettings,
+    };
 
-  const {
-    imageFormat,
-    quality,
-    transparent,
-    encoding,
-    puppeteerScreenshotSettings,
-    caching,
-  } = settings;
+    if (imageFormat === ImageFormat.JPEG) {
+      screenshotSettings.quality = quality ? quality : 80;
+    }
 
-  await page.setCacheEnabled(caching);
+    const { viewport } = settings;
+    if (viewport) {
+      const { width, height, deviceScaleFactor } = viewport;
+      await page.setViewport({ width, height, deviceScaleFactor });
+    }
 
-  const screenshotSettings = {
-    quality,
-    ...puppeteerScreenshotSettings,
+    await page.setContent(html);
+
+    const element = await page.$("body");
+
+    if (!element) {
+      throw new Error(
+        `An error occurred while obtaining the body element out of the puppeteer page.
+        It's most likely to be a puppeteer problem`
+      );
+    }
+
+    const result = await element.screenshot({
+      type: imageFormat,
+      omitBackground: transparent,
+      encoding,
+      ...screenshotSettings,
+    });
+
+    await page.close();
+
+    return result;
   };
-
-  if (imageFormat === ImageFormat.JPEG) {
-    screenshotSettings.quality = quality ? quality : 80;
-  }
-
-  const { viewport } = settings;
-  if (viewport) {
-    const { width, height, deviceScaleFactor } = viewport;
-    await page.setViewport({ width, height, deviceScaleFactor });
-  }
-
-  await page.setContent(html);
-
-  const element = await page.$("body");
-
-  if (!element) {
-    throw new Error(
-      `An error occurred while obtaining the body element out of the puppeteer page.
-      It's most likely to be a puppeteer problem`
-    );
-  }
-
-  const result = await element.screenshot({
-    type: imageFormat,
-    omitBackground: transparent,
-    encoding,
-    ...screenshotSettings,
-  });
-
-  await page.close();
-
-  return result;
 }
 
 /**
@@ -126,7 +127,9 @@ export default async function (
   settings: Settings = defaultSettings
 ) {
   const cluster = await getCluster();
-  const result = await cluster.execute({ html, settings });
+  const result = await cluster.execute(
+    createTakeScreenshotTask(html, settings)
+  );
   return result;
 }
 
@@ -149,10 +152,6 @@ export async function init() {
  * the cluster.
  */
 async function getCluster() {
-  const cluster: Cluster<Data, any> = await ClusterHolder.getInstance(
-    async (cluster: Cluster<Data, any>) => {
-      cluster.task(takeScreenshot);
-    }
-  );
+  const cluster: Cluster<string> = await ClusterHolder.getInstance();
   return cluster;
 }

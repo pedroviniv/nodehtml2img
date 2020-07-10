@@ -1,20 +1,20 @@
-import { Cluster } from "puppeteer-cluster";
+import { ClusterSettings } from "./Cluster";
 import * as os from "os";
 
-function getConcurrency(): number {
-  const concurrency = process.env.PUPPETEER_CLUSTER;
-  if (concurrency) {
-    return Number.parseInt(concurrency);
-  }
-  return Cluster.CONCURRENCY_CONTEXT;
-}
-
-function getMaxConcurrency() {
-  const maxConcurrency = process.env.PUPPETEER_CLUSTER_MAX_CONCURRENCY;
+function getWorkersNumber() {
+  const maxConcurrency = process.env.PUPPETEER_WORKERS_NUMBER;
   if (maxConcurrency) {
     return Number.parseInt(maxConcurrency);
   }
   return os.cpus.length;
+}
+
+function getIntervalBetweenTasks() {
+  const intervalBetweenTasks = process.env.INTERVAL_BETWEEN_TASKS;
+  if (intervalBetweenTasks) {
+    return Number.parseInt(intervalBetweenTasks);
+  }
+  return 10;
 }
 
 function isPuppeteerHeadless() {
@@ -35,14 +35,6 @@ function getPuppeteerArgs() {
   return ["--no-sandbox"];
 }
 
-function getNodehtml2imgMonitor() {
-  const monitor = process.env.NODE_HTML_2_IMG_MONITOR;
-  if (monitor) {
-    return monitor === "true";
-  }
-  return false;
-}
-
 function getExecutionTimeout() {
   const timeoutString = process.env.PUPPETEER_CLUSTER_TIMEOUT;
   if (timeoutString) {
@@ -51,13 +43,11 @@ function getExecutionTimeout() {
   return 30000;
 }
 
-export default {
-  concurrency: getConcurrency(),
-  maxConcurrency: getMaxConcurrency(),
-  puppeteerOptions: {
+export default <ClusterSettings>{
+  intervalBetweenTasks: getIntervalBetweenTasks(),
+  workersNumber: getWorkersNumber(),
+  puppeteerSettings: {
     headless: isPuppeteerHeadless(),
     args: getPuppeteerArgs(),
   },
-  monitor: getNodehtml2imgMonitor(),
-  timeout: getExecutionTimeout(),
 };
