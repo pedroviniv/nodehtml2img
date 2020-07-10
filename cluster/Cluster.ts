@@ -120,7 +120,6 @@ class ClusterWorker<T> {
     this.running = true;
 
     interval(async (iteration, stop) => {
-      console.log("interval func executed");
       if (!this.running) {
         console.log("stopping");
         stop();
