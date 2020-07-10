@@ -1,6 +1,6 @@
 {
   "name": "nodehtml2img",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "A node.js module that renders an HTML content and generates an image from it",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
