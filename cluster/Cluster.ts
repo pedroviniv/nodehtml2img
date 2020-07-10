@@ -141,7 +141,7 @@ class ClusterWorker<T> {
           return;
         }
 
-        const current = this.tasks.shift();
+        let current = this.tasks.shift();
 
         if (current) {
           console.log(
@@ -153,6 +153,8 @@ class ClusterWorker<T> {
               this.id
             }] finished executing task ${current.getTaskDescription()}`
           );
+
+          current = undefined;
         }
       }, this.intervalBetweenTasks);
     }
